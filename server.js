@@ -12,7 +12,7 @@ const PORT = 3000; // Define your port number
 // Your routes would go here
 
 // Database connection (ensure this is done before starting the server)
-const MONGODB_URI = "mongodb+srv://NavinRaj:Navinraj23@cluster0.kdi54.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"; // Update with your Atlas connection string
+const MONGODB_URI = "mongodb_uri"; // Update with your Atlas connection string
 mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
