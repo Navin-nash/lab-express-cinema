@@ -83,7 +83,23 @@ const movies = [
 
 
 // Add here the script that will be run to actually seed the database (feel free to refer to the previous lesson)
+const mongoose = require('mongoose');
+const Movie = require('../models/movies.model');
+require('dotenv').config();
 
   
-
+const MONGO_URI = process.env.MONGODB_URI;
 // ... your code here
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    console.log('Connected to MongoDB');
+    return Movie.insertMany(movies);
+  })
+  .then((insertedMovies) => {
+    console.log(`Successfully seeded ${insertedMovies.length} movies`);
+    mongoose.connection.close();
+  })
+  .catch((error) => {
+    console.error('Error seeding the database', error);
+    mongoose.connection.close();
+  });

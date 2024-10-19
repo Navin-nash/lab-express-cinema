@@ -1,34 +1,40 @@
-// ℹ️ Gets access to environment variables/settings
-// https://www.npmjs.com/package/dotenv
-require('dotenv/config');
-
-// ℹ️ Connects to the database
-require('./db');
-
-// Handles http requests (express is node js framework)
-// https://www.npmjs.com/package/express
 const express = require('express');
-
-// Handles the handlebars
-// https://www.npmjs.com/package/hbs
-const hbs = require('hbs');
+const exphbs = require('express-handlebars');
+const mongoose = require('mongoose');
+const movieRoutes = require('./routes/index'); // Adjust the path if necessary
 
 const app = express();
 
-// ℹ️ This function is getting exported from the config folder. It runs most middlewares
-require('./config')(app);
+// Connect to MongoDB Atlas
+mongoose
+    .connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(() => console.log('MongoDB connected'))
+    .catch((err) => console.error('MongoDB connection error:', err));
 
-// default value for title local
-const projectName = 'lab-express-cinema';
-const capitalized = string => string[0].toUpperCase() + string.slice(1).toLowerCase();
+// Set up Handlebars view engine
+app.engine('hbs', exphbs.engine({ extname: '.hbs' }));
+app.set('view engine', 'hbs');
 
-app.locals.title = `${capitalized(projectName)}- Generated with Ironlauncher`;
+// Middleware
+app.use(express.urlencoded({ extended: true }));
 
-// 👇 Start handling routes here
-const index = require('./routes/index');
-app.use('/', index);
+// Home route
+app.get('/', (req, res) => {
+    res.render('index'); // Make sure there's an index.hbs file in the views folder
+});
 
-// ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
-require('./error-handling')(app);
+// Use the movies route
+app.use('/movies', movieRoutes); // This assumes you created a router for movies
 
-module.exports = app;
+// Error handling
+app.use((req, res, next) => {
+    res.status(404).send('Page not found');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
